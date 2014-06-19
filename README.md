@@ -1,4 +1,4 @@
 WebApiSerializers
 =================
 
-Fluent and extensible webapi serializers. Based como rails serializers.
+Fluent and extensible webapi serializers. Based on rails serializers.
