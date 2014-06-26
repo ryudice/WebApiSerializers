@@ -19,7 +19,8 @@ namespace WebApiSerializers
 
         public void PopulateFromAssembly(Assembly assembly)
         {
-            serializers = assembly.GetExportedTypes().Where(type => type.GetGenericTypeDefinition() == typeof(Serializer<>)).ToDictionary(type => type.GenericTypeArguments[0], type => (ISerializer) Activator.CreateInstance(type) );
+            var filterAssemblies = assembly.GetExportedTypes().Where(type => (type.BaseType !=null && type.BaseType.IsGenericType) && type.BaseType.GetGenericTypeDefinition() == typeof(Serializer<>) );
+            serializers = filterAssemblies.ToDictionary(type => type.BaseType.GenericTypeArguments[0], type => (ISerializer) Activator.CreateInstance(type) );
         }
 
         public void SerializerFactory(Func<ISerializer> factory)

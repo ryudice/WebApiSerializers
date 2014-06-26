@@ -12,7 +12,9 @@ namespace WebApiSerializers.Tests.Serializers
         public EmployeeSerializer()
         {
             Attribute(employee => employee.FirstName);
-            Attribute(employee => employee.LastName);
+            Attribute(employee => employee.LastName).DefaultValue("Martinez");
+            Attribute(employee => employee.Name).As("FullName");
+
         }
     }
 }
