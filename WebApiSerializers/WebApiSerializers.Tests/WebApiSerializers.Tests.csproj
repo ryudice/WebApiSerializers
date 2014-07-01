@@ -73,9 +73,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Entity\NewFolder1\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\WebApiSerializers\WebApiSerializers.csproj">
       <Project>{776302C3-89D6-4930-8185-EEE6246F7D58}</Project>

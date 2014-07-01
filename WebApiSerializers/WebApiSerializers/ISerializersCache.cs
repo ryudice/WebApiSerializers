@@ -7,7 +7,7 @@ namespace WebApiSerializers
     {
         void PopulateFromAssembly(Assembly assembly);
 
-        void SerializerFactory(Func<ISerializer> factory);
+        
 
         ISerializer GetSerializerForClass(Type type);
 

@@ -13,7 +13,9 @@ namespace WebApiSerializers.Tests.Entity
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Name { get; set; }
-        public Company Company{ get; set; }
+        public IList<Company> Companies{ get; set; }
+
+        
 
     }
 

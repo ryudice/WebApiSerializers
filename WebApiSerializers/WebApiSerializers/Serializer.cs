@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Serialization;
+using WebApiSerializers.Helpers;
 
 namespace WebApiSerializers
 {
@@ -13,53 +14,73 @@ namespace WebApiSerializers
         IContractResolver GetContractResolver();
     }
 
-    public class Serializer<T> : ISerializer where T: class
+    public class Serializer<T> : ISerializer where T : class
     {
-        private List<JsonAttribute> _attributes = new List<JsonAttribute>();
+        private List<MappedAttributeBase> _attributes = new List<MappedAttributeBase>();
+        //private List<HasManyAttributeBase> _hasManyAttributes= new List<HasManyAttributeBase>();
 
         public IAttributeBuilder Attribute(Expression<Func<T, object>> property)
         {
             if (property == null)
                 throw new ArgumentNullException("property");
 
-            //TODO mover to utils later
-            var memberExpression = property.Body as MemberExpression;
-            if (memberExpression != null)
+            var propertyName = Utils.GetPropertyNameFromExpression(property);
+
+            var jsonAttribute = new JsonAttribute()
             {
-                var jsonAttribute = new JsonAttribute()
-                {
-                    Name = memberExpression.Member.Name
-                };
-                _attributes.Add(jsonAttribute);
-                return new AttributeBuilder(jsonAttribute);
-                
-            }
-            throw new ArgumentException("Not a valid member expression", "property");
+                Name = propertyName
+            };
+            _attributes.Add(jsonAttribute);
+            return new AttributeBuilder(jsonAttribute);
         }
 
+
+        public IRelationShipBuilder<TProperty> HasMany<TProperty>(Expression<Func<T, IEnumerable<TProperty>>> property)
+            where TProperty : class
+        {
+            var hasManyAttribute = new HasManyAttribute<TProperty>()
+            {
+                Name = Utils.GetPropertyNameFromExpression(property)
+            };
+            _attributes.Add(hasManyAttribute);
+
+            return new RelationShipBuilder<TProperty>(hasManyAttribute);
+        }
 
         public IContractResolver GetContractResolver()
         {
-            return new FluentContractResolver(_attributes);
-
+            return new FluentContractResolver(_attributes, typeof(T));
         }
+    }
+
+    internal class HasManyAttributeBase : MappedAttributeBase
+    {
+        
+    }
+
+    internal class HasManyAttribute<T> : HasManyAttributeBase
+    {
+        public Func<T, object>  Map { get; set; }
 
     }
+
 
     public interface IAttributeBuilder
     {
         IAttributeBuilder As(string name);
 
         IAttributeBuilder DefaultValue(object value);
-
     }
 
 
-    public class JsonAttribute
+    public class MappedAttributeBase
     {
-
         public string Name { get; set; }
         public string As { get; set; }
+    }
+
+    public class JsonAttribute : MappedAttributeBase
+    {
         public object DefaultValue { get; set; }
     }
 

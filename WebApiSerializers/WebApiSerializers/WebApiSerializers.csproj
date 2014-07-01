@@ -56,7 +56,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FluentContractResolver.cs" />
+    <Compile Include="Helpers\TaskHelpers.cs" />
+    <Compile Include="Helpers\TaskHelpersExtensions.cs" />
+    <Compile Include="Helpers\Utils.cs" />
     <Compile Include="IConfiguration.cs" />
+    <Compile Include="IRelationShipBuilder.cs" />
     <Compile Include="ISerializersCache.cs" />
     <Compile Include="SerializersCache.cs" />
     <Compile Include="WebApiSerializers.cs" />

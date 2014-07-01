@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,6 +27,70 @@ namespace WebApiSerializers
         public WebApiSerializersMediaTypeFormatter()
         {
         }
+
+        public override Task<object> ReadFromStreamAsync(Type type, Stream readStream, HttpContent content, IFormatterLogger formatterLogger)
+        {
+            if (type == null)
+                throw new ArgumentNullException("type");
+
+            if (readStream == null)
+                throw new ArgumentNullException("readStream");
+
+            var serializer = SerializersCache.Current.GetSerializerForClass(type);
+
+            if (serializer == null)
+                return base.ReadFromStreamAsync(type, readStream, content, formatterLogger);
+
+
+            return TaskHelpers.RunSynchronously<object>(() =>
+            {
+                HttpContentHeaders contentHeaders = content == null ? null : content.Headers;
+
+                // If content length is 0 then return default value for this type
+                if (contentHeaders != null && contentHeaders.ContentLength == 0)
+                {
+                    return GetDefaultValueForType(type);
+                }
+
+                // Get the character encoding for the content
+                Encoding effectiveEncoding = SelectCharacterEncoding(contentHeaders);
+
+                try
+                {
+                        using (JsonTextReader jsonTextReader = new JsonTextReader(new StreamReader(readStream, effectiveEncoding)) { CloseInput = false, MaxDepth = 256 })
+                        {
+
+                            var defaultSerializerSettings = CreateDefaultSerializerSettings();
+                            defaultSerializerSettings.ContractResolver = serializer.GetContractResolver();
+
+                            JsonSerializer jsonSerializer = JsonSerializer.Create(defaultSerializerSettings);
+                            if (formatterLogger != null)
+                            {
+                                // Error must always be marked as handled
+                                // Failure to do so can cause the exception to be rethrown at every recursive level and overflow the stack for x64 CLR processes
+                                jsonSerializer.Error += (sender, e) =>
+                                {
+                                    Exception exception = e.ErrorContext.Error;
+                                    formatterLogger.LogError(e.ErrorContext.Path, exception);
+                                    e.ErrorContext.Handled = true;
+                                };
+                            }
+                            return jsonSerializer.Deserialize(jsonTextReader, type);
+  //                      }
+                    }
+                }
+                catch (Exception e)
+                {
+                    if (formatterLogger == null)
+                    {
+                        throw;
+                    }
+                    formatterLogger.LogError(String.Empty, e);
+                    return GetDefaultValueForType(type);
+                }
+            });
+        }
+
 
         public override Task WriteToStreamAsync(Type type, object value, Stream writeStream, HttpContent content,
             TransportContext transportContext)

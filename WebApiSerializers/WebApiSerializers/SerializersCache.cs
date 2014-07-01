@@ -23,10 +23,7 @@ namespace WebApiSerializers
             serializers = filterAssemblies.ToDictionary(type => type.BaseType.GenericTypeArguments[0], type => (ISerializer) Activator.CreateInstance(type) );
         }
 
-        public void SerializerFactory(Func<ISerializer> factory)
-        {
-            throw new NotImplementedException();
-        }
+ 
 
         public ISerializer GetSerializerForClass(Type type)
         {
@@ -34,6 +31,14 @@ namespace WebApiSerializers
             serializers.TryGetValue(type, out value);
             return value;
 
+        }
+
+        public void AddSerializers(IEnumerable<Type> list)
+        {
+            var dictionary = list.ToDictionary(type => type.BaseType.GenericTypeArguments[0], type => (ISerializer)Activator.CreateInstance(type));
+
+            foreach (var serializer in dictionary)
+                serializers.Add(serializer.Key, serializer.Value);
         }
     }
 }

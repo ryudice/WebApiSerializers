@@ -17,4 +17,17 @@ namespace WebApiSerializers.Tests.Serializers
 
         }
     }
+
+    internal class EmployeeRelationshipSerializer : Serializer<Employee>
+    {
+        public EmployeeRelationshipSerializer()
+        {
+            Attribute(employee => employee.FirstName);
+            Attribute(employee => employee.LastName).DefaultValue("Martinez");
+            Attribute(employee => employee.Name).As("FullName");
+            HasMany(employee => employee.Companies).Map(company => new {  name = company.Name });
+
+        }
+    }
+
 }
