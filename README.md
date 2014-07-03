@@ -10,10 +10,10 @@ Configuration
 Either in global.asax or wherever you bootstrap your application add this:
 
 ```cs
- WebApiSerializers.Configure(configuration =>
-            {
-                configuration.UseSerializersFromAssembly(Assembly.GetExecutingAssembly());
-            });
+WebApiSerializers.Configure(configuration =>
+ {
+  configuration.UseSerializersFromAssembly(Assembly.GetExecutingAssembly());
+});
 
 ```
 
@@ -36,3 +36,18 @@ The following is an example of a serializer. It has to be public so that it gets
         }
     }
 ```
+Be aware that if you create a serializer for a class and you leave it empty then no members of the class will be serialized.
+
+
+Options
+-------------------
+
+###Attributes
+To specify all the attributes that you want serialized use the `Attribute`method
+
+###Relationships
+To serialize relationships use the `HasMany` method. If you want to remap to another class when serializing you can use `Map`. If you do use Map you will break deserialization though.
+
+
+
+
