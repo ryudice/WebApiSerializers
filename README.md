@@ -46,7 +46,7 @@ Options
 To specify all the attributes that you want serialized use the `Attribute`method
 
 ###Relationships
-To serialize relationships use the `HasMany` method. If you want to remap to another class when serializing you can use `Map`. If you do use Map you will break deserialization though.
+To serialize relationships use the `HasMany` method. If you want to remap to another class when serializing you can use `Map`. If you do use `Map` you will break deserialization though.
 
 
 
